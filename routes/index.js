@@ -7,3 +7,7 @@ router.get('/', function(req, res, next) {
 });
 
 module.exports = router;
+
+router.get('/hello', function(req, res) {
+  res.send('The time is ' + new Date().toString());
+});
