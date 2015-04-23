@@ -7,3 +7,7 @@ router.get('/', function(req, res, next) {
 });
 
 module.exports = router;
+
+router.get('/:username', function(req, res){
+  res.send('user: ' + req.params.username);
+});
