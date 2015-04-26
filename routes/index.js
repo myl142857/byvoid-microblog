@@ -65,7 +65,8 @@ router.post('/reg', function(req, res){
     //如果不存在则新增用户
     newUser.save(function(err) {
       if (err) {
-        req.flash('error', err);
+        //req.flash('error', err);
+        req.session.error = err;
         return res.redirect('/reg');
       }
       req.session.user = newUser;
@@ -77,8 +78,38 @@ router.post('/reg', function(req, res){
 });
 
 router.get('/login', function(req, res){
+  res.render('login', {
+    title: '用户登入',
+    user: req.session.user,
+    success: req.session.success,
+    error: req.session.error
+  });
 });
 router.post('/login', function(req, res){
+  //生成口令的散列值
+  var md5 = crypto.createHash('md5');
+  var password = md5.update(req.body.password).digest('base64');
+  User.get(req.body.username, function(err, user) {
+  if (!user) {
+  //req.flash('error', '用户不存在');
+  req.session.error = '用户不存在';
+  return res.redirect('/login');
+  }
+  if (user.password != password) {
+  //req.flash('error', '用户口令错误');
+  req.session.error = '用户口令错误';
+  return res.redirect('/login');
+  }
+  req.session.user = user;
+  //req.flash('success', '登入成功');
+  req.session.success = '登入成功';
+  res.redirect('/');
+  });
 });
+
 router.get('/logout', function(req, res){
+  req.session.user = null;
+  //req.flash('success', '登出成功');
+  req.session.success = '登出成功';
+  res.redirect('/');
 });
