@@ -2,14 +2,21 @@ var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
 var User = require('../models/user.js');
+var Post = require('../models/post.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', {
-    title: '首页',
-    user: req.session.user,
-    success: req.session.success,
-    error: req.session.error
+  Post.get(null, function(err, posts){
+    if(err){
+      posts = [];
+    }
+    res.render('index', {
+      title: '首页',
+      posts: posts,
+      user: req.session.user,
+      success: req.session.success,
+      error: req.session.error
+    });
   });
 });
 
@@ -28,9 +35,44 @@ router.get('/list', function(req, res){
   });
 });
 
-router.get('/u/:user', function(req, res){
+router.get('/u/:user', function(req, res) {
+  User.get(req.params.user, function(err, user) {
+    if (!user) {
+      //req.flash('error', '用户不存在');
+      req.session.error = '用户不存在';
+      return res.redirect('/');
+    }
+    Post.get(user.name, function(err, posts) {
+      if (err) {
+        req.flash('error', err);
+        req.session.error = err;
+        return res.redirect('/');
+      }
+      res.render('user', {
+        title: user.name,
+        posts: posts,
+        user: req.session.user,
+        success: req.session.success,
+        error: req.session.error
+      });
+    });
+  });
 });
-router.post('/post', function(req, res){
+
+router.post('/post', checkLogin);
+router.post('/post', function(req, res) {
+  var currentUser = req.session.user;
+  var post = new Post(currentUser.name, req.body.post);
+  post.save(function(err) {
+    if (err) {
+      //req.flash('error', err);
+      req.session.error = err;
+      return res.redirect('/');
+    }
+    //req.flash('success', '发表成功');
+    req.session.success = '发表成功';
+    res.redirect('/u/' + currentUser.name);
+  });
 });
 
 router.get('/reg', checkNotLogin);
