@@ -32,6 +32,8 @@ router.get('/u/:user', function(req, res){
 });
 router.post('/post', function(req, res){
 });
+
+router.get('/reg', checkNotLogin);
 router.get('/reg', function(req, res){
   res.render('reg', {
     title: '用户注册',
@@ -40,6 +42,7 @@ router.get('/reg', function(req, res){
     error: req.session.error
   });
 });
+router.post('/reg', checkNotLogin);
 router.post('/reg', function(req, res){
   if(req.body['password-repeat'] != req.body['password']){
     //req.flash('error', '两次输入的口令不一致');
@@ -77,6 +80,7 @@ router.post('/reg', function(req, res){
   });
 });
 
+router.get('/login', checkNotLogin);
 router.get('/login', function(req, res){
   res.render('login', {
     title: '用户登入',
@@ -85,6 +89,7 @@ router.get('/login', function(req, res){
     error: req.session.error
   });
 });
+router.post('/login', checkNotLogin);
 router.post('/login', function(req, res){
   //生成口令的散列值
   var md5 = crypto.createHash('md5');
@@ -107,9 +112,27 @@ router.post('/login', function(req, res){
   });
 });
 
+router.get('/logout', checkLogin);
 router.get('/logout', function(req, res){
   req.session.user = null;
   //req.flash('success', '登出成功');
   req.session.success = '登出成功';
   res.redirect('/');
 });
+
+function checkLogin(req, res, next) {
+  if (!req.session.user) {
+    //req.flash('error', '未登入');
+    req.session.error = '未登入';
+    return res.redirect('/login');
+  }
+  next();
+}
+function checkNotLogin(req, res, next) {
+  if (req.session.user) {
+    //req.flash('error', '已登入');
+    req.session.error = '已登入';
+    return res.redirect('/');
+  }
+  next();
+}
