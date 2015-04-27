@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var settings = require('./settings');
 var MongoStore = require('connect-mongo')(session);
+var FileStore = require('session-file-store')(session);
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -29,11 +30,15 @@ app.use(session({
   cookie: {maxAge: 80000 },
   resave: false,
   saveUninitialized: true,
+/*
   store: new MongoStore({
     host: settings.host,
     port: settings.port,
     db: settings.db
   })
+*/
+  store: new FileStore(),
+
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
