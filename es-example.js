@@ -1,12 +1,15 @@
 //https://github.com/myl142857/session#compatible-session-stores
+//https://github.com/myl142857/session-file-store
 
 var express = require('express')
 var parseurl = require('parseurl')
 var session = require('express-session')
+var FileStore = require('session-file-store')(session);
 
 var app = express()
 
 app.use(session({
+  store: new FileStore(),
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true
