@@ -1,8 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
-var User = require('../models/user.js');
-var Post = require('../models/post.js');
+//var User = require('../models/user.js');
+var User = require('../models/user-fs.js');
+//var Post = require('../models/post.js');
+var Post = require('../models/post-fs.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
